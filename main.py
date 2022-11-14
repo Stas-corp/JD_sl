@@ -37,6 +37,10 @@ def write_html():
         file.write(get_html(url).text)
         print('File writed!')
 
+def write_json():
+    with open('products.json', 'w') as file:     
+        json.dump(dict_product_items, file)
+
 def read_html():
     try:
         with open('index.html', 'r', encoding='utf-8') as file:
@@ -47,48 +51,40 @@ def read_html():
         print(type(exec), 'Error reading index.html')
 
 def scrap():
-    global count_from
+    print(url())
+    soup = BeautifulSoup(get_html(url()).text, 'lxml')
+
+    # находим таблицу с карточками товара
+    table = soup.find('ul', class_='listProducts')
+    # создаём список из элементов таблицы
+    table_items = list(table.find_all('li', class_='productListItem')) 
+
+    for item in table_items:
+        print('__________________________________')
+        name_product = item.find('span', class_='itemTitle').text.replace('\n','')
+        sku = item.find('span', class_='itemContainer').get('data-productsku')
+        print(name_product+';','SKU:'+str(sku))
+
+        url_product = item.find('span', class_='itemTitle').find('a').get('href')
+        print(domain_name+url_product)
+
+        price_product_was = item.find(
+            'span', class_='was').find('span').text
+        print('Was', price_product_was)
+        price_product_was = float(price_product_was[1:])
+
+        price_product_now = item.find(
+            'span', class_='now').find('span').text
+        print('Now', price_product_now)
+        price_product_now = float(price_product_now[1:])
+
+        product = storage.Item(
+            name_product, sku, url_product, price_product_was, price_product_now)
+        dict_product_items[sku] = product.__dict__
+
+def main():
     while response(url()):
-        print(url())
-        soup = BeautifulSoup(get_html(url()).text, 'lxml')
-
-        # находим таблицу с карточками товара
-        table = soup.find('ul', class_='listProducts')
-        # создаём список из элементов таблицы
-        table_items = list(table.find_all('li', class_='productListItem')) 
-
-        for item in table_items:
-            print('__________________________________')
-            name_product = item.find('span', class_='itemTitle').text.replace('\n','')
-            sku = item.find('span', class_='itemContainer').get('data-productsku')
-            print(name_product+';','SKU:'+str(sku))
-
-            url_product = item.find('span', class_='itemTitle').find('a').get('href')
-            print(domain_name+url_product)
-
-            price_product_was = item.find(
-                'span', class_='was').find('span').text
-            print('Was', price_product_was)
-            price_product_was = float(price_product_was[1:])
-
-            price_product_now = item.find(
-                'span', class_='now').find('span').text
-            print('Now', price_product_now)
-            price_product_now = float(price_product_now[1:])
-
-            product = storage.Item(
-                name_product, sku, url_product, price_product_was, price_product_now)
-            dict_product_items[sku] = product.__dict__
-
-        count_from += 24
-        time.sleep(5)
-
-
-def write_json():
-    with open('products.json', 'w') as file:     
-        json.dump(dict_product_items, file)
-
-
+        
 
 if __name__ == "__main__":
     # write_html()
