@@ -13,11 +13,19 @@ headers = {
     'accept':'*/*',
     'user-agent':'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Mobile Safari/537.36'
 }
-url = 'https://www.global.jdsports.com/men/brand/adidas-originals,nike,the-north-face,polo-ralph-lauren,jordan,champion,new-balance,napapijri/sale/?from=0&jd_sort_order=price-low-high'
-
+url = 'https://www.global.jdsports.com/men/brand/adidas-originals,nike,the-north-face,polo-ralph-lauren,jordan,champion,new-balance,napapijri/sale/?jd_sort_order=price-low-high&max=204'
 def url():
-    url = 'https://www.global.jdsports.com/men/brand/adidas-originals,nike,the-north-face,polo-ralph-lauren,jordan,champion,new-balance,napapijri/sale/?from='+str(count_from)+'&jd_sort_order=price-low-high' 
+    url = 'https://www.global.jdsports.com/men/brand/adidas-originals,nike,the-north-face,polo-ralph-lauren,jordan,champion,new-balance,napapijri/sale/?from='+str(count_from)+'&jd_sort_order=price-low-high&max=204' 
     return url
+
+def find_not_found(page:BeautifulSoup):
+    result = page.find('div', class_='not-found')
+    if result == None:
+        print('Page has a product')
+        return True
+    else:
+        print('Page "404", process completed!')
+        return False
 
 def response(url):
     try:
@@ -28,18 +36,17 @@ def response(url):
         print('No Response')
         return False
 
-def get_html(url):
+def return_html(url):
     src = requests.get(url, headers=headers)
     return src
 
+def return_Soup():
+    return BeautifulSoup(return_html(url()).text, 'lxml')
+
 def write_html():
     with open ('index.html', 'w', encoding='utf-8') as file:
-        file.write(get_html(url).text)
+        file.write(return_html(url).text)
         print('File writed!')
-
-def write_json():
-    with open('products.json', 'w') as file:     
-        json.dump(dict_product_items, file)
 
 def read_html():
     try:
@@ -50,13 +57,15 @@ def read_html():
     except (FileNotFoundError, EncodingWarning, EOFError, io.UnsupportedOperation) as exec:
         print(type(exec), 'Error reading index.html')
 
-def scrap():
-    print(url())
-    soup = BeautifulSoup(get_html(url()).text, 'lxml')
+def write_json():
+    with open('products.json', 'w') as file:     
+        json.dump(dict_product_items, file)
 
-    # находим таблицу с карточками товара
+def scrap():
+    
+    soup = return_Soup()
+
     table = soup.find('ul', class_='listProducts')
-    # создаём список из элементов таблицы
     table_items = list(table.find_all('li', class_='productListItem')) 
 
     for item in table_items:
@@ -79,13 +88,18 @@ def scrap():
         price_product_now = float(price_product_now[1:])
 
         product = storage.Item(
-            name_product, sku, url_product, price_product_was, price_product_now)
+            name_product, sku, domain_name+url_product, price_product_was, price_product_now)
         dict_product_items[sku] = product.__dict__
 
 def main():
-    while response(url()):
+    global count_from
+    while response(url()) and find_not_found(return_Soup()):
+        print(url())
+        scrap()
+        count_from += 204
+    # нужна проверка перед перезаписью!
+    write_json()
         
-
 if __name__ == "__main__":
     # write_html()
-    scrap()
+    main()
