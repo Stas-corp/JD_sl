@@ -4,8 +4,9 @@ import lxml
 from bs4 import BeautifulSoup
 import io
 import json
-import time
+import arrow
 
+data = arrow.now().format('YYMMDD,HH-mm-ss')
 count_from = 0
 dict_product_items = dict()
 domain_name = 'https://www.global.jdsports.com'
@@ -25,6 +26,7 @@ def find_not_found(page:BeautifulSoup):
         return True
     else:
         print('Page "404", process completed!')
+        print(data)
         return False
 
 def response(url):
@@ -58,7 +60,7 @@ def read_html():
         print(type(exec), 'Error reading index.html')
 
 def write_json():
-    with open('products.json', 'w') as file:     
+    with open(data +'_products.json', 'w') as file:     
         json.dump(dict_product_items, file)
 
 def scrap():
