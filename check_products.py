@@ -1,14 +1,12 @@
 import json
 
-asd = []
-
 def read_json(name):
     with open(name, 'r', encoding='utf-8') as file:
         data = json.load(file)
-    return data
+    return dict(data)
 
-was_d = dict(read_json('NEWproducts.json'))
-actual_d = dict(read_json('230115,13-41-01_products.json'))
+was_d = read_json('230115,13-41-01_products.json')
+actual_d = read_json('230206,16-58-04_products.json')
 
 print('WAS Data len ->',len(was_d))
 print('NEW Data len ->',len(actual_d))
@@ -31,10 +29,10 @@ def check_actual_data(actual_data:dict, was_data:dict):
     print('Temp Data len ->',len(temp_data))
     return temp_data
 
-def analyze_data(actual_data:dict=actual_d):
-    filter_data = check_actual_data(actual_d, was_d)
-    new_sku = list()
-    changed_price_sku = list()
+def analyze_data(actual_data:dict=actual_d, was_data:dict=was_d):
+    filter_data = check_actual_data(actual_data, was_data)
+    new_data = dict()
+    changed_price_data = dict()
     count = 0
     for sku_actual, data_actual in actual_data.items():
         if sku_actual in filter_data:
@@ -45,15 +43,16 @@ def analyze_data(actual_data:dict=actual_d):
                 # print(sku_actual, 'Сhanges FOUND!')
                 count += 1
                 if data_actual['price_now'] < filter_data[sku_actual]['price_now']:
-                    # print('^^^^^^ CHANGE PRICE!!!')
-                    # print('Price WAS ->', filter_data[sku_actual]['price_now'])
-                    # print('Print NOW ->', data_actual['price_now'])
-                    changed_price_sku.append(sku_actual)
+                    '''print('^^^^^^ CHANGE PRICE!!!')
+                    print('Price WAS ->', filter_data[sku_actual]['price_now'])
+                    print('Print NOW ->', data_actual['price_now'])'''
+                    changed_price_data[sku_actual] = data_actual
         else:
             # print(sku_actual, 'NEW PRODUCT!!!')
-            new_sku.append(sku_actual)
+            new_data[sku_actual] = data_actual
     # print('New SKU ->', new_sku)
     # print('Data with changes ->', count)
-    return new_sku
+    return {'new_sku':new_data,
+            'changed_price':changed_price_data}
 
-analyze_data(actual_d)
+analyze_data()
