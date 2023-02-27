@@ -5,11 +5,14 @@ def read_json(name):
         data = json.load(file)
     return dict(data)
 
-was_d = read_json('230115,13-41-01_products.json')
-actual_d = read_json('230206,16-58-04_products.json')
+def read_data():
+    was_d = read_json('json_data/WAS_products.json')
+    actual_d = read_json('json_data/NEW_products.json')
 
-print('WAS Data len ->',len(was_d))
-print('NEW Data len ->',len(actual_d))
+    print('WAS Data len ->',len(was_d))
+    print('NEW Data len ->',len(actual_d))
+
+    return (actual_d, was_d)
 
 def check_actual_data(actual_data:dict, was_data:dict):
     '''Проверяет старые данные и новые на вхождение.
@@ -29,7 +32,8 @@ def check_actual_data(actual_data:dict, was_data:dict):
     print('Temp Data len ->',len(temp_data))
     return temp_data
 
-def analyze_data(actual_data:dict=actual_d, was_data:dict=was_d):
+def analyze_data():
+    actual_data, was_data = read_data()
     filter_data = check_actual_data(actual_data, was_data)
     new_data = dict()
     changed_price_data = dict()
@@ -54,5 +58,3 @@ def analyze_data(actual_data:dict=actual_d, was_data:dict=was_d):
     # print('Data with changes ->', count)
     return {'new_sku':new_data,
             'changed_price':changed_price_data}
-
-analyze_data()
