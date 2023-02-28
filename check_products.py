@@ -21,20 +21,13 @@ def check_actual_data(actual_data:dict, was_data:dict):
     for sku_new, data_new in actual_data.items():
         if sku_new in was_data:
             temp_data[sku_new] = was_data[sku_new]
-    '''
-    count = 0
-    for sku in temp_data.keys():
-        if not temp_data[sku] == was_data[sku] == actual_data[sku]:
-            print(sku, 'ATTENTION!!! Data inconsistency')
-            count+=1 
-    print('Data with changes ->', count)
-    '''     
     print('Temp Data len ->',len(temp_data))
     return temp_data
 
 def analyze_data():
     actual_data, was_data = read_data()
     filter_data = check_actual_data(actual_data, was_data)
+    
     new_data = dict()
     changed_price_data = dict()
     count = 0
