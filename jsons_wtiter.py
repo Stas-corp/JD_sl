@@ -13,11 +13,11 @@ def change_json_name(path:str, new_file:str, was_file:str, date:str):
                 os.rename(new_file_path, os.path.join(old_data_path, f'{date}_{was_file}'))
             os.rename(file_path, new_file_path)
         except Exception as e:
-            print("ERROR! can't change filename!\n", e)
+            print(f"ERROR! can't change filename!\n{e}")
     else:
         print('No file to change')
 
-def write_json(data, date, path = 'json_data', new_file = 'NEW_products.json', was_file = 'WAS_products.json'):
+def write_json(data:str, date:str, path = 'json_data', new_file = 'NEW_products.json', was_file = 'WAS_products.json'):
     if not os.path.isdir(path):
         os.mkdir(path)
     change_json_name(path, new_file, was_file, date)
