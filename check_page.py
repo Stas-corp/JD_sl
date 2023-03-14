@@ -7,25 +7,17 @@ import time
 bot = botinit.bot
 sch = botinit.sch
 
-timer_schedule = 0.1
+timer_schedule = 0
 
 def check_page(mess):
     num_item_new = parsser.scraper.get_numder_items()
-    # print(num_item_new)
     num_item_last = len(check_products.get_data()[0])
     message = f'Сейчас на сайте {num_item_new} товаров.\nВ последнем сборе данных {num_item_last} товаров.'
     bot.send_message(mess.chat.id, message)
 
-def creat_task(mess, timer = timer_schedule):
+def creat_task(mess, timer):
     print(timer)
     sch.add_job(check_page, args=[mess], trigger='interval', minutes=timer, id='checker')
-    # schedule.every(timer).minutes.do(check_page, mess=mess).tag('checker')
-
-# def start_schedule(mess):
-#     creat_task(mess)
-#     # print(timer)
-#     while True:
-#         schedule.run_pending() 
 
 def stop_task(mess):
     try:
@@ -54,10 +46,4 @@ def main(mess):
         mrk.add(button)
         bot.send_message(mess.chat.id, message, reply_markup=mrk)
     else:
-        creat_task(mess)
-        # print(f'Len schedule.get_jobs() -> {len(schedule.get_jobs())}')
-        # if len(schedule.get_jobs()) == 0:
-        #     start_schedule(mess)
-        #     return 
-        # creat_task(mess)
-        
+        creat_task(mess, timer_schedule)     
