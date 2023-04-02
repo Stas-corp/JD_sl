@@ -14,9 +14,9 @@ headers = Headers(headers=True).generate()
 def get_date():
     return arrow.now().format('YYMMDD,HH-mm-ss')
 
-def url(count_from:int):
-    url = f'https://www.global.jdsports.com/men/brand/adidas-originals,nike,the-north-face,polo-ralph-lauren,jordan,champion,new-balance,napapijri/sale/?from={count_from}&jd_sort_order=price-low-high&max=204'
-    return url
+def write_html(page):
+    with open('index.html', 'w', encoding='utf-8') as file:
+        file.write(page)
 
 class Scraper:
     def __init__(self):
@@ -24,7 +24,11 @@ class Scraper:
         self.table_items = None
         self.number_items = None
         self.dict_product_items = dict()
+        self.url = None
         self.set_soup() # правильно ли, вызывать метод в кострукторе, который иницализирует поле?  
+
+    def set_url(self, count_from: int):
+        self.url = f'https://www.global.jdsports.com/men/brand/adidas-originals,nike,the-north-face,polo-ralph-lauren,jordan,champion,new-balance,napapijri/sale/?from={count_from}&jd_sort_order=price-low-high&max=204'
 
     def _search_data(self, table: set[BeautifulSoup]):
         for item in table:
@@ -62,13 +66,15 @@ class Scraper:
         Или лучше наследоваться? Но тогда вопрос, 
         можно ли отложить инциализацию родительского коструктора?'''
 
-    def _request(self, url=url(0)):
-        return requests.get(url, headers=headers).text
+    def _request(self, count_from):
+        self.set_url(count_from)
+        return requests.get(self.url, headers=headers).text
 
     def set_soup(self, count_from = 0):
-        self.soup = BeautifulSoup(self._request(url(count_from)), 'lxml')
+        self.soup = BeautifulSoup(self._request(count_from), 'lxml')
 
     def get_numder_items(self):
+        self.set_soup()
         self.number_items = int(self.soup.find('div', class_='pageCount').text.strip().split(' ')[0])
         return self.number_items
         
@@ -82,9 +88,13 @@ class Scraper:
         self.table_items = self.soup.find('ul', class_='listProducts').find_all('li', class_='productListItem')
         self._search_data(self.table_items)
 
-def write_html(page):
-    with open('index.html', 'w', encoding='utf-8') as file:
-        file.write(page)
+    def main(self):
+        count_from = 0
+        while response(self.url) and find_not_found(self.get_soup()):
+            self.scrap()
+            count_from += 204
+            self.set_soup(count_from)
+        jsons_wtiter.write_json(self.get_dict_products(), get_date())
 
 def find_not_found(page: BeautifulSoup):
     result = page.find('div', class_='not-found')
@@ -105,16 +115,6 @@ def response(url: str):
         print('No Response')
         return False
 
-scraper = Scraper()
-
-def main():
-    count_from = 0
-    while response(url(count_from)) and find_not_found(scraper.get_soup()):
-        scraper.scrap()
-        count_from += 204
-        scraper.set_soup(count_from)
-    jsons_wtiter.write_json(scraper.get_dict_products(), get_date())
-    count_from = 0
-
 if __name__ == "__main__":
-    main()
+    scraper = Scraper()
+    scraper.main()

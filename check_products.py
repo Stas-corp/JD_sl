@@ -12,7 +12,7 @@ def _read_data():
     print('NEW Data len ->',len(actual_d))
     return (actual_d, was_d)
 
-def _check_actual_data(actual_data:dict, was_data:dict):
+'''def _check_actual_data(actual_data:dict, was_data:dict):
     temp_data = dict()
     for sku_new, data_new in actual_data.items():
         if sku_new in was_data:
@@ -28,16 +28,34 @@ def _analyze_data(datas:tuple[dict]):
     count = 0
     for sku_actual, data_actual in actual_data.items():
         if sku_actual in filter_data:
-            if data_actual == filter_data[sku_actual]:
-                pass
-            else: # find change
+            if data_actual != filter_data[sku_actual]:
+                print('Данные отличаются')
+                print(data_actual)
+                print('____________________')
+                print(filter_data[sku_actual])
                 if data_actual['price_now'] < filter_data[sku_actual]['price_now']:
+                    print('Есть изменения цены')
                     changed_price_data[sku_actual] = data_actual
+            else:
+                print('Данные сходятся')
         else: # new product
             new_data[sku_actual] = data_actual 
     print ('Analyze completd')
     return {'New SKU':new_data,
-            'Changed Price':changed_price_data}
+            'Changed Price':changed_price_data}'''
+
+def _analyze_data(datas: tuple[dict]):
+    new_products = dict()
+    price_changes = dict()
+    for sku, product1 in datas[0].items():
+        product2 = datas[1].get(sku)
+        if product2 is None:
+            new_products[sku] = product1
+        elif product1['price_now'] < product2['price_now']:
+            price_changes[sku] = product1
+            price_changes[sku]['price_was'] = product2['price_now']
+    return {'New SKU':new_products,
+            'Changed Price': price_changes}
 
 def get_data():
     '''-> tuple ( 'dict actual_data' , 'dict was_data' )'''
