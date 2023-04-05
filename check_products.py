@@ -5,9 +5,9 @@ def _read_json(name):
         data = json.load(file)
     return dict(data)
 
-def _read_data():
-    actual_d = _read_json('json_data/NEW_products.json')
-    was_d = _read_json('json_data/WAS_products.json')
+def _read_data(base = 'json_data/NEW_products.json', second = 'json_data/WAS_products.json'):
+    actual_d = _read_json(base)
+    was_d = _read_json(second)
     print('WAS Data len ->',len(was_d))
     print('NEW Data len ->',len(actual_d))
     return (actual_d, was_d)

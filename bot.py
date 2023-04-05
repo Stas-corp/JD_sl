@@ -4,12 +4,14 @@ import check_page
 import call_parsser
 import botinit
 import task_manager
+import json_manager
 
 import time
 import telebot as tlb
 
 bot = botinit.bot
 sch = botinit.sch
+jsn = json_manager.Manager()
 tsk = task_manager.Manager()
 
 @bot.message_handler(commands=['start'])
@@ -37,12 +39,13 @@ def reaction(mess: tlb.types.Message):
         input_timeout(mess, call_parsser.set_new_timeout)
         
     if mess.text == botinit.button_tasker_start.text:
-        tsk.onCreate = True
         tsk.chouse_function(mess)
 
     if mess.text == botinit.button_tasker_remove.text:
-        tsk.onCreate = False
         tsk.chouse_job(mess)
+
+    if mess.text == botinit.button_chouse_json_file.text:
+        jsn.chouse_base_file(mess)
 
     if mess.text == botinit.button_test.text:
         key = 'Message'
@@ -68,15 +71,29 @@ def caller(call: tlb.types.CallbackQuery):
         if call.data in [name_func for name_func in tsk.functions]:
             message = f'Вызванна функция: {call.data}'
             bot.send_message(call.message.chat.id, message)
-            bot.answer_callback_query(call.id)
             tsk.add_job(call.message, call.data)
-
-    else:
+    elif tsk.onDel:
         if call.data in [name_job for name_job in tsk.jobs]:
-            message = f'Удаляем задачу: {call.data}'
-            bot.send_message(call.message.chat.id, message)
-            bot.answer_callback_query(call.id)
             tsk.remove_job(call.message, call.data)
+            message = f'Удалена задача: {call.data}'
+            bot.send_message(call.message.chat.id, message)
+        else:
+            message = f'Такой задачи нет или она уже удалена.'
+            bot.send_message(call.message.chat.id, message)
+
+    if jsn.onChouse_base:
+        if call.data.startswith('first'):
+            jsn.set_base_json(call.data.split(' ')[1])
+            bot.delete_message(call.message.chat.id, call.message.id)
+            bot.send_message(call.message.chat.id, call.data.split(' ')[1])
+            jsn.chouse_second_file(call.message)
+    elif jsn.onChouse_second:
+        if call.data.startswith('second'):
+            jsn.set_second_json(call.data.split(' ')[1])
+            bot.delete_message(call.message.chat.id, call.message.id)
+            bot.send_message(call.message.chat.id, call.data.split(' ')[1]) 
+            
+    bot.answer_callback_query(call.id)
 
 def input_timeout(mess: tlb.types.Message, function):
     bot.delete_message(mess.chat.id, mess.message_id)

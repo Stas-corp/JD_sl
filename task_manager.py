@@ -9,7 +9,8 @@ sch = botinit.sch
 
 class Manager:
     def __init__(self):
-        self.onCreate: bool = None
+        self.onCreate: bool = False
+        self.onDel: bool = False
         self.jobs = {}
         self.functions = {
             'Parsser':call_parsser.call_parsser,
@@ -17,6 +18,8 @@ class Manager:
         }
 
     def chouse_function(self, mess: tlb.types.Message):
+        self.onCreate = True
+        self.onDel = False
         message = f'Выбери функцию которую нужно запланировать:'
         mrk = tlb.types.InlineKeyboardMarkup()
         for name, func in self.functions.items():
@@ -51,14 +54,21 @@ class Manager:
         self.jobs[name_job] = j
 
     def chouse_job(self, mess: tlb.types.Message):
-        message = f'Выбери задачу которая есть в планировщике:'
-        mrk = tlb.types.InlineKeyboardMarkup()
-        for name, job in self.jobs.items():
-            btn = tlb.types.InlineKeyboardButton(text=name, callback_data=name)
-            mrk.add(btn)
-        bot.send_message(mess.chat.id, message, reply_markup=mrk)
+        self.onCreate = False
+        self.onDel = True
+        if len(self.jobs) > 0:
+            message = f'Выбери задачу которая есть в планировщике:'
+            mrk = tlb.types.InlineKeyboardMarkup()
+            for name, job in self.jobs.items():
+                btn = tlb.types.InlineKeyboardButton(text=name, callback_data=name)
+                mrk.add(btn)
+            bot.send_message(mess.chat.id, message, reply_markup=mrk)
+        else:
+            message = f'Нет запланированных задач!'
+            bot.send_message(mess.chat.id, message)
 
     def remove_job(self, mess: tlb.types.Message, name_job):
+        bot.delete_message(mess.chat.id, mess.id)
         id = self.jobs[name_job].id
         sch.remove_job(id)
         self.jobs.pop(name_job)
