@@ -10,6 +10,10 @@ bot = telebot.TeleBot(config.TEST_TOKEN)
 sch = BackgroundScheduler()
 prs = parsser.Scraper()
 
+bot.set_my_commands(commands=[
+    telebot.types.BotCommand('start', 'старт/перезапуск бота'),
+    telebot.types.BotCommand('parsser', 'запуск сбора данных'),
+    telebot.types.BotCommand('check_page', 'проверка количества товаров')])
 
 markup = telebot.types.ReplyKeyboardMarkup(is_persistent=True, resize_keyboard=True)
 

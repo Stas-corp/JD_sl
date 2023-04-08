@@ -6,7 +6,7 @@ import telebot as tlb
 bot = botinit.bot
 prs = botinit.prs
 
-task = None
+'''task = None
 timer_for_call_parsser = 0
 
 def parss(mess: tlb.types.Message):
@@ -33,7 +33,7 @@ def set_new_timeout(mess: tlb.types.Message):
         #     stop_parsser(mess) 
     except Exception as e:
         message = f'Установка нового таймера не произошла из-из ошибки:\n{e}'
-        bot.send_message(mess.chat.id, message)
+        bot.send_message(mess.chat.id, message)'''
 
 def call_parsser(mess: tlb.types.Message, minutes:float = 0): # async
     # try:

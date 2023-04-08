@@ -5,44 +5,12 @@ def _read_json(name):
         data = json.load(file)
     return dict(data)
 
-def _read_data(base = 'json_data/NEW_products.json', second = 'json_data/WAS_products.json'):
+def _read_data(base, second):
     actual_d = _read_json(base)
     was_d = _read_json(second)
     print('WAS Data len ->',len(was_d))
     print('NEW Data len ->',len(actual_d))
     return (actual_d, was_d)
-
-'''def _check_actual_data(actual_data:dict, was_data:dict):
-    temp_data = dict()
-    for sku_new, data_new in actual_data.items():
-        if sku_new in was_data:
-            temp_data[sku_new] = was_data[sku_new]
-    print('Temp Data len ->',len(temp_data))
-    return temp_data
-
-def _analyze_data(datas:tuple[dict]):
-    actual_data, _ = datas
-    filter_data = _check_actual_data(actual_data, _)
-    new_data = dict()
-    changed_price_data = dict()
-    count = 0
-    for sku_actual, data_actual in actual_data.items():
-        if sku_actual in filter_data:
-            if data_actual != filter_data[sku_actual]:
-                print('Данные отличаются')
-                print(data_actual)
-                print('____________________')
-                print(filter_data[sku_actual])
-                if data_actual['price_now'] < filter_data[sku_actual]['price_now']:
-                    print('Есть изменения цены')
-                    changed_price_data[sku_actual] = data_actual
-            else:
-                print('Данные сходятся')
-        else: # new product
-            new_data[sku_actual] = data_actual 
-    print ('Analyze completd')
-    return {'New SKU':new_data,
-            'Changed Price':changed_price_data}'''
 
 def _analyze_data(datas: tuple[dict]):
     new_products = dict()
@@ -63,9 +31,9 @@ def get_data():
     was_d = _read_json('json_data/WAS_products.json')
     return (actual_d, was_d)
     
-def main():
+def main(names=('json_data/NEW_products.json','json_data/WAS_products.json')):
     try:
-        return _analyze_data(_read_data())
+        return _analyze_data(_read_data(names[0], names[1]))
     except Exception as e:
         return f'ERORR read or analyze data from JSON!\nException -> {e}.'
 

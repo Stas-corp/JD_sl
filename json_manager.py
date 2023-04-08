@@ -1,6 +1,6 @@
 import check_products
 import botinit
-
+import check_page
 import os
 import telebot as tlb
 
@@ -62,7 +62,16 @@ class Manager:
         for file, file_path in self.json_list[firs_index+1:]:
             btn = tlb.types.InlineKeyboardButton(text=file, callback_data='second '+file)
             mrk.add(btn)
-        bot.send_message(mess.chat.id, message, reply_markup=mrk)  
+        bot.send_message(mess.chat.id, message, reply_markup=mrk)
+
+    def call_check_products(self, mess: tlb.types.Message):
+        self.onChouse_base = False
+        self.onChouse_second = False
+        message = f'Выбраны два файла -> \nПервый: {self.base_json}\nВторой: {self.second_json}'
+        mrk = tlb.types.InlineKeyboardMarkup()
+        btn1 = tlb.types.InlineKeyboardButton('Сравнить выбранные файлы', callback_data='compare_select_jsons')
+        mrk.add(btn1)
+        bot.send_message(mess.chat.id, message, reply_markup=mrk)
 
 if __name__ == '__main__':
     m = Manager()
